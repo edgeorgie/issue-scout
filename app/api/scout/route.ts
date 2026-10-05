@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { scout } from "@/lib/scout";
 import { GitHubError, GitHubRateLimitError } from "@/lib/github";
+import { getUserToken } from "@/lib/auth";
 import { rateLimit } from "@/lib/ratelimit";
 
 const USER_RE = /^[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,38})$/;
@@ -14,7 +15,7 @@ export async function GET(req: NextRequest) {
   const user = req.nextUrl.searchParams.get("user") ?? "";
   if (!USER_RE.test(user)) return NextResponse.json({ error: "Invalid GitHub username" }, { status: 400 });
 
-  const token = process.env.GITHUB_TOKEN ?? null;
+  const token = (await getUserToken()) ?? process.env.GITHUB_TOKEN ?? null;
   try {
     return NextResponse.json(await scout(user, token));
   } catch (e) {
