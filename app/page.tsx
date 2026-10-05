@@ -1,6 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import LlmSettings, { loadConfig, type LlmConfig } from "@/components/LlmSettings";
+import AnalyzeButton from "@/components/AnalyzeButton";
 
 type Result = {
   issue: { number: number; title: string; url: string; labels: string[]; comments: number };
@@ -18,6 +20,15 @@ export default function Home() {
   const [user, setUser] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [llm, setLlm] = useState<LlmConfig>({ provider: "anthropic", key: "" });
+  const [me, setMe] = useState<{ login: string | null; oauth: boolean }>({ login: null, oauth: false });
+  useEffect(() => {
+    Promise.resolve().then(() => setLlm(loadConfig()));
+    fetch("/api/auth/me")
+      .then((r) => r.json())
+      .then(setMe)
+      .catch(() => {});
+  }, []);
   const [data, setData] = useState<{ languages: string[]; results: Result[] } | null>(null);
 
   async function submit(e: React.FormEvent) {
@@ -43,6 +54,20 @@ export default function Home() {
       <p className="mt-2 text-neutral-500">
         Open, unassigned issues in healthy open source repos that match the languages you use.
       </p>
+      {me.oauth && (
+        <div className="mt-3 text-sm text-neutral-500">
+          {me.login ? (
+            <form action="/api/auth/logout" method="post" className="inline">
+              Signed in as {me.login}. <button className="underline">Sign out</button>
+            </form>
+          ) : (
+            <a href="/api/auth/login" className="underline">
+              Sign in with GitHub for a higher API limit
+            </a>
+          )}
+        </div>
+      )}
+      <LlmSettings value={llm} onChange={setLlm} />
       <form onSubmit={submit} className="mt-6 flex gap-2">
         <input
           value={user}
@@ -76,6 +101,7 @@ export default function Home() {
                   {r.repo.name} - {r.repo.stars} stars - {r.repo.hasContributing ? "CONTRIBUTING found" : "no CONTRIBUTING"} -{" "}
                   {POLICY_LABEL[r.repo.aiPolicy]}
                 </p>
+                <AnalyzeButton repo={r.repo.name} number={r.issue.number} config={llm} />
               </li>
             ))}
           </ul>
