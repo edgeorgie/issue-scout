@@ -10,6 +10,8 @@ Find open source issues you can fix, ranked by repository health and contributio
 
 ## Try it
 
+**Live demo:** https://issue-scout-seven.vercel.app
+
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fedgeorgie%2Fissue-scout)
 
 ```bash
