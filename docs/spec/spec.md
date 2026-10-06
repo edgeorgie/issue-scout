@@ -46,6 +46,8 @@ Status: Verified.
 Status: Implemented, not verified end to end.
 
 - Given repeated requests from one client, then requests beyond the limit are rejected; given GitHub rate limiting, then a clear error is shown.
+- The client key comes only from the platform header (`x-vercel-forwarded-for` on Vercel); elsewhere all callers share one key, so a forged `X-Forwarded-For` cannot create new buckets. The bucket map is bounded and purged, there is a global limit for anonymous scouts, and scout results are cached for five minutes per user.
+- Given the server token and a private repository, `/api/issue` answers 403; the `repo` parameter rejects `.` and `..` segments.
 
 ### FR-5 Optional GitHub sign-in
 
@@ -67,5 +69,5 @@ Status: Verified.
 
 ## Open risks
 
-- In-memory rate limiting does not hold across instances.
+- In-memory rate limiting and caching do not hold across instances; the global limit is per instance.
 - Small repositories can score high; the score measures process health, not project value.
