@@ -28,3 +28,7 @@ Deploy to Vercel and set the variables from `.env.example`.
 ## Scripts
 
 `npm run dev`, `npm run build`, `npm run lint`, `npm test`.
+
+## How this was built
+
+Spec-driven development with AI assistance. Requirements, plan, tasks, decisions and a requirement-to-code traceability matrix live in [`docs`](docs/spec/spec.md), and [`AGENTS.md`](AGENTS.md) defines the workflow and quality gates. `npm run verify` runs typecheck, lint, the traceability check, tests and the build. The specification was written after the first implementation and says so; changes from here start in the spec.
