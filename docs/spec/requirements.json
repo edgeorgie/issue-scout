@@ -49,14 +49,22 @@
     "title": "Rate limiting and API limits",
     "status": "Implemented, not verified end to end",
     "acceptance": [
-      "Given repeated requests from one client, then requests beyond the limit are rejected; given GitHub rate limiting, then a clear error is shown."
+      "Given repeated requests from one client, then requests beyond the limit are rejected; given GitHub rate limiting, then a clear error is shown.",
+      "Given a forged X-Forwarded-For, then it does not create a new rate limit bucket.",
+      "Given the server token and a private repository, then /api/issue answers 403."
     ],
     "implementation": [
       "lib/ratelimit.ts",
-      "app/api/scout/route.ts"
+      "lib/clientip.ts",
+      "lib/cache.ts",
+      "lib/repo.ts",
+      "app/api/scout/route.ts",
+      "app/api/issue/route.ts"
     ],
-    "tests": [],
-    "evidence": "manual: PR 1, limiter exercised through the route. In-memory only, so it resets per server instance."
+    "tests": [
+      "tests/abuse-controls.test.ts"
+    ],
+    "evidence": "manual: PR 1, limiter exercised through the route. Unit tests cover the limiter, client key, cache and repo checks. In-memory only, so it resets per server instance."
   },
   {
     "id": "FR-5",

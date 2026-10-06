@@ -27,7 +27,7 @@ Open http://localhost:3000. Requires Node 22 or newer.
 
 | Variable | Purpose |
 |---|---|
-| `GITHUB_TOKEN` | Optional personal token to raise the GitHub API limit when not using OAuth. |
+| `GITHUB_TOKEN` | Optional token to raise the GitHub API limit when not using OAuth. Use a fine-grained token without access to private repositories. |
 | `GITHUB_CLIENT_ID` | Optional GitHub OAuth App client id. |
 | `GITHUB_CLIENT_SECRET` | Optional GitHub OAuth App secret. Callback URL: `<origin>/api/auth/callback`. |
 

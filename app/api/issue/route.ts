@@ -1,23 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
 import { gh } from "@/lib/github";
+import { clientKey } from "@/lib/clientip";
+import { parseRepo, loadIssue, PrivateRepoError } from "@/lib/repo";
 import { getUserToken } from "@/lib/auth";
 import { rateLimit } from "@/lib/ratelimit";
 
-const REPO_RE = /^[\w.-]+\/[\w.-]+$/;
-
 export async function GET(req: NextRequest) {
-  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "local";
-  if (!rateLimit(`issue:${ip}`, 30).ok) return NextResponse.json({ error: "Too many requests" }, { status: 429 });
-  const repo = req.nextUrl.searchParams.get("repo") ?? "";
+  if (!rateLimit(`issue:${clientKey(req.headers)}`, 30).ok) return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+  const repo = parseRepo(req.nextUrl.searchParams.get("repo") ?? "");
   const number = Number(req.nextUrl.searchParams.get("number"));
-  if (!REPO_RE.test(repo) || !Number.isInteger(number) || number < 1) {
+  if (!repo || !Number.isInteger(number) || number < 1) {
     return NextResponse.json({ error: "Invalid parameters" }, { status: 400 });
   }
   try {
-    const token = (await getUserToken()) ?? process.env.GITHUB_TOKEN ?? null;
-    const i = await gh<{ title: string; body: string | null }>(`/repos/${repo}/issues/${number}`, token);
-    return NextResponse.json({ title: i.title, body: (i.body ?? "").slice(0, 6000) });
-  } catch {
+    const issue = await loadIssue(repo, number, gh, { user: await getUserToken(), server: process.env.GITHUB_TOKEN ?? null });
+    return NextResponse.json(issue);
+  } catch (e) {
+    if (e instanceof PrivateRepoError) return NextResponse.json({ error: "Repository is not public" }, { status: 403 });
     return NextResponse.json({ error: "Could not load issue" }, { status: 502 });
   }
 }
