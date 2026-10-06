@@ -11,5 +11,6 @@ Every requirement maps to implementation files and to tests or manual evidence. 
 | FR-5 | `lib/auth.ts`, `app/api/auth/login/route.ts`, `app/api/auth/callback/route.ts`, `app/api/auth/logout/route.ts`, `app/api/auth/me/route.ts` | manual | manual: implemented in PR 1; awaiting an OAuth App to verify the full round trip. | Implemented, not verified end to end |
 | FR-6 | `lib/llm.ts`, `components/AnalyzeButton.tsx`, `components/LlmSettings.tsx`, `app/api/issue/route.ts` | manual | manual: PR 1; not run against a real provider. | Implemented, not verified end to end |
 | FR-7 | `app/page.tsx` | manual | manual: PR 2, filter and sort verified in Chrome with real data. | Verified |
+| FR-8 | `lib/keystore.ts`, `components/KeyNotes.tsx`, `components/LlmSettings.tsx` | `tests/keystore.test.ts` | Key store tests; typecheck and build (SEC-002). Not exercised in a browser while Backend changes to the app are in flight. | Implemented, not verified end to end |
 
 "Verified" means the behavior was exercised. "Implemented, not verified end to end" means the code exists and its parts are tested, but a real external service or credential was not available.
