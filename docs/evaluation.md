@@ -16,7 +16,7 @@ A self-assessment against a reviewer's rubric. It states gaps plainly so a revie
 | Accessibility | Partial | Score dials have text labels; colors are paired with words, not used alone. Not audited with automated tooling. |
 | Performance | Partial | Each scout makes several GitHub requests and can take a few seconds. Not measured with Lighthouse. |
 | Security | Partial | Rate limiting is per instance (keyed by the platform IP, bounded, with a global cap and result cache); `/api/issue` reads only public repositories with the server token; OAuth round trip is not verified end to end. Baseline security headers are set (nosniff, frame denial, referrer and permissions policies). No Content Security Policy is configured. |
-| Deployment | Gap | Not deployed yet. A Vercel deploy button is in the README. |
+| Deployment | Pass | Live on Vercel at https://issue-scout-seven.vercel.app. The main flow was exercised with real GitHub data and invalid input returns 400. Security headers are applied by the host. |
 | Licensing | Pass | MIT. |
 
 ## Verify it yourself
