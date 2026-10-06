@@ -1,34 +1,134 @@
-# Issue Scout
+# issue-scout
 
-Find open source issues you can actually fix. Given a GitHub username, Issue Scout detects the languages you use and lists open, unassigned issues from active repositories, ranked by a deterministic repo health score and flagged with the repo's AI contribution policy.
+Find open source issues you can fix, ranked by repository health and contribution policy.
 
-## How it works
+- Ranks open, unassigned issues by repository health
+- Flags each project's stance on AI-assisted contributions
+- Filters by AI policy and sorts by score or stars
+- Optional GitHub sign-in for a higher API limit
+- Optional AI plan of attack with your own key
 
-- Languages: top 3 from the user's non-fork public repos.
-- Issues: GitHub search for open, unassigned, "good first issue" issues with no linked PR.
-- Health score (0-100): recent activity (30), response speed to external PRs (35), CONTRIBUTING present (15), no linked PR (20).
-- AI policy: heuristic read of CONTRIBUTING.md and AGENTS.md (forbidden, disclosure, mentioned, unknown).
-- Optional AI analysis (summary, difficulty, plan) with your own Anthropic or OpenAI key. The key lives in your browser and is sent only to the provider.
-- Basic per-IP rate limiting and graceful handling of GitHub API limits.
+## Try it
 
-## Run locally
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fedgeorgie%2Fissue-scout)
 
 ```bash
 npm install
-cp .env.example .env.local
 npm run dev
 ```
 
-Without any token the GitHub API allows 60 requests per hour. Set `GITHUB_TOKEN`, or configure a GitHub OAuth App (callback `<origin>/api/auth/callback`) to raise the limit to 5,000 per hour.
+Open http://localhost:3000. Requires Node 22 or newer.
 
-## Deploy
+1. Enter a GitHub username and press Scout.
+2. Filter by AI policy and sort by score or stars.
+3. Open an issue on GitHub, or add a key for a plan of attack.
 
-Deploy to Vercel and set the variables from `.env.example`.
+## Configuration
+
+| Variable | Purpose |
+|---|---|
+| `GITHUB_TOKEN` | Optional personal token to raise the GitHub API limit when not using OAuth. |
+| `GITHUB_CLIENT_ID` | Optional GitHub OAuth App client id. |
+| `GITHUB_CLIENT_SECRET` | Optional GitHub OAuth App secret. Callback URL: `<origin>/api/auth/callback`. |
+
+Copy `.env.example` to `.env.local` to set them. All are optional.
+
+## How it works
+
+```mermaid
+flowchart LR
+  U[Username] --> L[Detect languages]
+  L --> S[Search issues]
+  S --> H[Repo health signals]
+  H --> K[Score 0 to 100]
+  S --> P[AI policy detection]
+  K --> R[Ranked results]
+  P --> R
+```
+
+The route detects the user's languages, searches issues, enriches each repository with health signals, scores it and returns ranked results. The client filters and sorts locally. Full diagrams and the module map are in [docs/architecture.md](docs/architecture.md).
+
+## Key concepts
+
+| Term | Meaning |
+|---|---|
+| Health score | 0 to 100: activity 30, response to outsiders 35, CONTRIBUTING 15, no open PR for the issue 20. |
+| External PR response time | Median time maintainers take to respond to pull requests from outside contributors. |
+| AI policy | Whether CONTRIBUTING forbids, requires disclosure of, mentions or ignores AI assistance. |
+| Unassigned issue | An open issue nobody has claimed. |
+| BYOK | Bring your own key: the user supplies the model key and it never reaches this app's server. |
+
+## Design system
+
+Typography: Display, Big Shoulders, uppercase; Text, Public Sans; Code, IBM Plex Mono.
+
+| Token | Value | Use |
+|---|---|---|
+| `bg` | `#f4f3ee` | Page background |
+| `ink` | `#101418` | Text and hard borders |
+| `navy` | `#0d2240` | Header |
+| `go` | `#0aa66a` | Strong score, AI welcome |
+| `warn` | `#f2a516` | Decent score, disclosure |
+| `stop` | `#e5484d` | Risky score, AI not accepted |
+
+- A scoreboard: the number leads, color carries meaning.
+- Hard shadows and borders for a tactile, high-contrast look.
+
+Motion, components and rationale: [docs/design-system.md](docs/design-system.md).
+
+## Data flow and privacy
+
+| Data | Where it goes | Stored |
+|---|---|---|
+| Username | Sent to this app's route, then to GitHub | Not stored |
+| GitHub token (OAuth) | httpOnly cookie | This browser |
+| Provider key | localStorage, sent only to the provider | This browser |
+| Issue text for analysis | Sent to the chosen model provider | Not stored |
+
+## Limits
+
+- The in-memory rate limiter resets per server instance.
+- A high score measures process health, not project value.
+- Unauthenticated GitHub calls are limited to 60 per hour.
+
+## Documentation
+
+| Document | What it answers |
+|---|---|
+| [docs/index.md](docs/index.md) | Map of all documentation |
+| [docs/architecture.md](docs/architecture.md) | Diagrams and modules |
+| [docs/spec/spec.md](docs/spec/spec.md) | Requirements and acceptance criteria |
+| [docs/spec/traceability.md](docs/spec/traceability.md) | Requirement to code, test and evidence |
+| [docs/design-system.md](docs/design-system.md) | Tokens, motion, components |
+| [docs/glossary.md](docs/glossary.md) | Definitions |
+| [docs/evaluation.md](docs/evaluation.md) | Self-assessment against a review rubric |
+| [docs/adr](docs/adr) | Decision records |
+
+## For AI agents and tools
+
+- [AGENTS.md](AGENTS.md) defines the workflow and quality gates for agents and people.
+- [llms.txt](public/llms.txt) is served at `/llms.txt` when deployed and points to the key documents.
+- [docs/spec/requirements.json](docs/spec/requirements.json) is the machine-readable requirement list with status, files and tests.
+- `npm run verify` is the single deterministic gate: typecheck, lint, traceability check, tests and build.
+
+LLM integration: Issue bodies are untrusted input to the model for the optional analysis (indirect prompt injection is possible). The model has no tools and its reply is shown as plain text.
 
 ## Scripts
 
-`npm run dev`, `npm run build`, `npm run lint`, `npm test`.
+| Script | Purpose |
+|---|---|
+| `npm run dev` | Development server |
+| `npm run build` | Production build |
+| `npm run typecheck` | TypeScript check |
+| `npm run lint` | ESLint |
+| `npm test` | Unit tests |
+| `npm run spec:check` | Traceability gate |
+| `npm run verify` | All of the above |
 
-## How this was built
+## Contributing
 
-Spec-driven development with AI assistance. Requirements, plan, tasks, decisions and a requirement-to-code traceability matrix live in [`docs`](docs/spec/spec.md), and [`AGENTS.md`](AGENTS.md) defines the workflow and quality gates. `npm run verify` runs typecheck, lint, the traceability check, tests and the build. The specification is the source of truth for the 0.1.0 baseline; changes start there.
+See [CONTRIBUTING.md](CONTRIBUTING.md). Security reports: [SECURITY.md](SECURITY.md).
+
+## License
+
+MIT.
