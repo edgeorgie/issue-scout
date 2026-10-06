@@ -15,7 +15,7 @@ A self-assessment against a reviewer's rubric. It states gaps plainly so a revie
 | Privacy and data flow | Pass | Every data path and its storage is tabulated in the README. |
 | Accessibility | Partial | Score dials have text labels; colors are paired with words, not used alone. Not audited with automated tooling. |
 | Performance | Partial | Each scout makes several GitHub requests and can take a few seconds. Not measured with Lighthouse. |
-| Security | Partial | Rate limiting is per instance; OAuth round trip is not verified end to end. No Content Security Policy is configured. |
+| Security | Partial | Rate limiting is per instance; OAuth round trip is not verified end to end. Baseline security headers are set (nosniff, frame denial, referrer and permissions policies). No Content Security Policy is configured. |
 | Deployment | Gap | Not deployed yet. A Vercel deploy button is in the README. |
 | Licensing | Pass | MIT. |
 
