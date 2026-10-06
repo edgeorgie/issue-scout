@@ -53,7 +53,7 @@ Status: Implemented, not verified end to end.
 
 Status: Implemented, not verified end to end.
 
-- Given OAuth credentials, when the user signs in, then requests use their token and the API limit rises; the token is stored in an httpOnly cookie.
+- Given OAuth credentials, when the user signs in, then requests use their token and the API limit rises; the token is stored in an httpOnly cookie. Sign-in requests no scope (read access to public data only); a failed or non-JSON token exchange redirects to `/?auth=error`.
 
 ### FR-6 AI plan of attack (bring your own key)
 
