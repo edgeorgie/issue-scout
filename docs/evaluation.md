@@ -11,7 +11,7 @@ A self-assessment against a reviewer's rubric. It states gaps plainly so a revie
 | Specification and traceability | Pass | Spec, plan, tasks, ADRs and a matrix enforced by `npm run spec:check`. |
 | Documentation structure | Pass | Index, architecture with diagrams, glossary and design system. |
 | Agent readiness | Pass | AGENTS.md, llms.txt, machine-readable requirements and a deterministic gate. There is no MCP server or OpenAPI document because the app is client-side. |
-| LLM integration safety | Partial | Issue bodies are untrusted input to the model for the optional analysis (indirect prompt injection is possible). The model has no tools and its reply is shown as plain text. |
+| LLM integration safety | Partial | Issue text is delimited as untrusted data in the prompt, but it remains untrusted input to the model for the optional analysis (indirect prompt injection is possible). The model has no tools and its reply is shown as plain text. |
 | Privacy and data flow | Pass | Every data path and its storage is tabulated in the README. |
 | Accessibility | Partial | Score dials have text labels; colors are paired with words, not used alone. Not audited with automated tooling. |
 | Performance | Partial | Each scout makes several GitHub requests and can take a few seconds. Not measured with Lighthouse. |
