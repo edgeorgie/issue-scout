@@ -7,7 +7,7 @@ export async function GET(req: NextRequest) {
   const url = new URL("https://github.com/login/oauth/authorize");
   url.searchParams.set("client_id", process.env.GITHUB_CLIENT_ID!);
   url.searchParams.set("redirect_uri", `${req.nextUrl.origin}/api/auth/callback`);
-  url.searchParams.set("scope", "public_repo");
+  url.searchParams.set("scope", "");
   url.searchParams.set("state", state);
   const res = NextResponse.redirect(url);
   res.cookies.set(STATE_COOKIE, state, { httpOnly: true, sameSite: "lax", secure: true, maxAge: 600, path: "/" });
