@@ -23,14 +23,23 @@ export default function AnalyzeButton({ repo, number, config }: { repo: string; 
 
   if (!config.key) return null;
   return (
-    <div className="mt-2">
+    <div className="mt-4">
       {state !== "done" && (
-        <button onClick={run} disabled={state === "loading"} className="text-sm underline disabled:opacity-50">
-          {state === "loading" ? "Analyzing..." : "Analyze with AI"}
+        <button
+          onClick={run}
+          disabled={state === "loading"}
+          className="rounded-full bg-ink px-4 py-2 text-[13px] font-bold text-white transition hover:bg-go active:scale-95 disabled:opacity-60"
+        >
+          {state === "loading" ? "Reading the issue..." : "Plan of attack"}
         </button>
       )}
-      {state === "error" && <span className="ml-2 text-sm text-red-600">Failed. Check your key.</span>}
-      {state === "done" && <pre className="mt-2 whitespace-pre-wrap text-sm">{text}</pre>}
+      {state === "error" && <span className="ml-3 text-sm font-semibold text-stop">Failed. Check your key.</span>}
+      {state === "done" && (
+        <div className="row-in border-l-4 border-go bg-bg p-4">
+          <p className="font-mono text-[11px] uppercase tracking-widest text-ink-soft">Plan of attack</p>
+          <pre className="mt-2 whitespace-pre-wrap font-sans text-[14px] leading-relaxed">{text}</pre>
+        </div>
+      )}
     </div>
   );
 }
