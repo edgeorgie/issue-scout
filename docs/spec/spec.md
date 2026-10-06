@@ -67,6 +67,12 @@ Status: Verified.
 
 - Given results, then they can be filtered by AI policy with counts and sorted by score or stars.
 
+### FR-8 Provider key kept in the session by default
+
+Status: Implemented, not verified end to end.
+
+- Given a provider key, then it is kept in sessionStorage for the tab by default, kept on the device only when the user ticks "Remember on this device", and removable with "Clear key"; the provider choice persists.
+
 ## Open risks
 
 - In-memory rate limiting and caching do not hold across instances; the global limit is per instance.

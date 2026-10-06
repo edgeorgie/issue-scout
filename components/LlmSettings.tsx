@@ -1,25 +1,44 @@
 "use client";
 
 import { useState } from "react";
+import KeyNotes from "@/components/KeyNotes";
+import { clearKeys, readKeys, writeKeys } from "@/lib/keystore";
 import { PROVIDERS, type Provider } from "@/lib/llm";
 
-export type LlmConfig = { provider: Provider; key: string };
+export type LlmConfig = { provider: Provider; key: string; remember?: boolean };
+
+const SETTINGS = "llm-config";
+const KEY = "llm-config.key";
+const HOSTS: Record<Provider, string> = { anthropic: "api.anthropic.com", openai: "api.openai.com" };
 
 export function loadConfig(): LlmConfig {
+  const config: LlmConfig = { provider: "anthropic", key: "", remember: false };
   try {
-    const raw = localStorage.getItem("llm-config");
-    if (raw) return JSON.parse(raw) as LlmConfig;
+    const raw = localStorage.getItem(SETTINGS);
+    if (raw) {
+      const stored = JSON.parse(raw) as { provider?: Provider; key?: string };
+      if (stored.provider) config.provider = stored.provider;
+      if (stored.key) {
+        sessionStorage.setItem(KEY, JSON.stringify({ key: stored.key }));
+        localStorage.setItem(SETTINGS, JSON.stringify({ provider: config.provider }));
+      }
+    }
+    const keys = readKeys<{ key: string }>(KEY, sessionStorage, localStorage);
+    config.key = keys.value?.key ?? "";
+    config.remember = keys.remember;
   } catch {
     // storage unavailable: fall back to defaults
   }
-  return { provider: "anthropic", key: "" };
+  return config;
 }
 
 export default function LlmSettings({ value, onChange }: { value: LlmConfig; onChange: (c: LlmConfig) => void }) {
   const [open, setOpen] = useState(false);
   function set(c: LlmConfig) {
     try {
-      localStorage.setItem("llm-config", JSON.stringify(c));
+      localStorage.setItem(SETTINGS, JSON.stringify({ provider: c.provider }));
+      if (c.key) writeKeys(KEY, { key: c.key }, Boolean(c.remember), sessionStorage, localStorage);
+      else clearKeys(KEY, sessionStorage, localStorage);
     } catch {
       // storage unavailable: keep in memory only
     }
@@ -36,7 +55,7 @@ export default function LlmSettings({ value, onChange }: { value: LlmConfig; onC
       </button>
       {open && (
         <div className="absolute right-0 z-20 mt-3 w-72 border-2 border-ink bg-card p-4 shadow-[6px_6px_0_0_var(--ink)]">
-          <p className="mb-3 text-xs text-ink-soft">Optional. Adds a summary and plan of attack to any issue. The key stays in this browser and goes only to the provider you pick.</p>
+          <p className="mb-3 text-xs text-ink-soft">Optional. Adds a summary and plan of attack to any issue.</p>
           <select
             value={value.provider}
             onChange={(e) => set({ ...value, provider: e.target.value as Provider })}
@@ -54,6 +73,9 @@ export default function LlmSettings({ value, onChange }: { value: LlmConfig; onC
             autoComplete="off"
             className="w-full border-2 border-ink bg-bg px-2 py-1.5 text-sm outline-none focus:border-go"
           />
+          <div className="mt-3">
+            <KeyNotes host={HOSTS[value.provider]} remember={Boolean(value.remember)} hasKey={Boolean(value.key)} onRemember={(remember) => set({ ...value, remember })} onClear={() => set({ ...value, key: "" })} />
+          </div>
         </div>
       )}
     </div>
