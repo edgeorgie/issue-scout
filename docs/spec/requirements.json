@@ -1,0 +1,132 @@
+[
+  {
+    "id": "FR-1",
+    "title": "Scout by username",
+    "status": "Verified",
+    "acceptance": [
+      "Given a GitHub username, then the languages they use are detected and open, unassigned issues in matching repositories are listed."
+    ],
+    "implementation": [
+      "lib/scout.ts",
+      "lib/github.ts",
+      "app/api/scout/route.ts"
+    ],
+    "tests": [],
+    "evidence": "manual: PR 1 and PR 2, the real GitHub API returned 21 opportunities for a sample user."
+  },
+  {
+    "id": "FR-2",
+    "title": "Repository health score",
+    "status": "Verified",
+    "acceptance": [
+      "Given activity, maintainer response time to outsiders, a CONTRIBUTING file and whether the issue has an open PR, then a 0 to 100 score is computed with the documented weights (30, 35, 15, 20)."
+    ],
+    "implementation": [
+      "lib/scoring.ts"
+    ],
+    "tests": [
+      "tests/scoring.test.ts"
+    ],
+    "evidence": "PR 1: scoring tests."
+  },
+  {
+    "id": "FR-3",
+    "title": "AI policy detection",
+    "status": "Verified",
+    "acceptance": [
+      "Given contributing text, then the policy is classified as forbidden, disclosure, allowed or unknown."
+    ],
+    "implementation": [
+      "lib/policy.ts"
+    ],
+    "tests": [
+      "tests/scoring.test.ts"
+    ],
+    "evidence": "PR 1: policy tests."
+  },
+  {
+    "id": "FR-4",
+    "title": "Rate limiting and API limits",
+    "status": "Implemented, not verified end to end",
+    "acceptance": [
+      "Given repeated requests from one client, then requests beyond the limit are rejected; given GitHub rate limiting, then a clear error is shown.",
+      "Given a forged X-Forwarded-For, then it does not create a new rate limit bucket.",
+      "Given the server token and a private repository, then /api/issue answers 403."
+    ],
+    "implementation": [
+      "lib/ratelimit.ts",
+      "lib/clientip.ts",
+      "lib/cache.ts",
+      "lib/repo.ts",
+      "app/api/scout/route.ts",
+      "app/api/issue/route.ts"
+    ],
+    "tests": [
+      "tests/abuse-controls.test.ts"
+    ],
+    "evidence": "manual: PR 1, limiter exercised through the route. Unit tests cover the limiter, client key, cache and repo checks. In-memory only, so it resets per server instance."
+  },
+  {
+    "id": "FR-5",
+    "title": "Optional GitHub sign-in",
+    "status": "Implemented, not verified end to end",
+    "acceptance": [
+      "Given OAuth credentials, when the user signs in, then requests use their token and the API limit rises; the token is stored in an httpOnly cookie."
+    ],
+    "implementation": [
+      "lib/auth.ts",
+      "app/api/auth/login/route.ts",
+      "app/api/auth/callback/route.ts",
+      "app/api/auth/logout/route.ts",
+      "app/api/auth/me/route.ts"
+    ],
+    "tests": [],
+    "evidence": "manual: implemented in PR 1; awaiting an OAuth App to verify the full round trip."
+  },
+  {
+    "id": "FR-6",
+    "title": "AI plan of attack (bring your own key)",
+    "status": "Implemented, not verified end to end",
+    "acceptance": [
+      "Given a key, when the user asks for a plan, then the issue is fetched and a summary, difficulty and plan are shown; the key never reaches this app's server."
+    ],
+    "implementation": [
+      "lib/llm.ts",
+      "components/AnalyzeButton.tsx",
+      "components/LlmSettings.tsx",
+      "app/api/issue/route.ts"
+    ],
+    "tests": [],
+    "evidence": "manual: PR 1; not run against a real provider."
+  },
+  {
+    "id": "FR-7",
+    "title": "Filtering and sorting",
+    "status": "Verified",
+    "acceptance": [
+      "Given results, then they can be filtered by AI policy with counts and sorted by score or stars."
+    ],
+    "implementation": [
+      "app/page.tsx"
+    ],
+    "tests": [],
+    "evidence": "manual: PR 2, filter and sort verified in Chrome with real data."
+  },
+  {
+    "id": "FR-8",
+    "title": "Provider key kept in the session by default",
+    "status": "Implemented, not verified end to end",
+    "acceptance": [
+      "Given a provider key, then it is kept in sessionStorage for the tab by default, kept on the device only when the user ticks \"Remember on this device\", and removable with \"Clear key\"; the provider choice persists."
+    ],
+    "implementation": [
+      "lib/keystore.ts",
+      "components/KeyNotes.tsx",
+      "components/LlmSettings.tsx"
+    ],
+    "tests": [
+      "tests/keystore.test.ts"
+    ],
+    "evidence": "Key store tests; typecheck and build (SEC-002). Not exercised in a browser while Backend changes to the app are in flight."
+  }
+]
