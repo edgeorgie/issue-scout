@@ -8,5 +8,6 @@ Work items in the order they landed. Each links to the pull request that carries
 | T-2 Scoreboard redesign | [#2](https://github.com/edgeorgie/issue-scout/pull/2) | `feature/redesign` | FR-7 | Merged into the open branch |
 | T-3 Production readiness | [#3](https://github.com/edgeorgie/issue-scout/pull/3) | `feature/production-readiness` | none (quality) | Merged into the open branch |
 | T-4 Cookieless product analytics, off without a key | [#21](https://github.com/edgeorgie/issue-scout/pull/21) | `feature/posthog-analytics` | FR-9 | Open |
+| T-5 Gate the `/ingest` proxy on the key, closing an open relay | [#22](https://github.com/edgeorgie/issue-scout/pull/22) | `fix/gate-ingest-proxy` | FR-9 | Open |
 
 New work starts in `spec.md`, then adds a row here before code.
