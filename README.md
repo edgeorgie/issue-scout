@@ -86,6 +86,7 @@ All variables are optional. Copy `.env.example` to `.env.local` to set them.
 | `GITHUB_TOKEN` | Raises the GitHub API limit when not using OAuth. Use a fine-grained token without access to private repositories. |
 | `GITHUB_CLIENT_ID` | GitHub OAuth App client id. |
 | `GITHUB_CLIENT_SECRET` | GitHub OAuth App secret. Callback URL: `<origin>/api/auth/callback`. |
+| `NEXT_PUBLIC_POSTHOG_KEY` | PostHog project token for cookieless usage analytics. Unset by default: nothing is bundled or sent. What is and is not collected: [ADR 0002](docs/adr/0002-cookieless-product-analytics.md). |
 
 ## Keys and privacy
 
@@ -97,6 +98,7 @@ Your model key is bring-your-own (BYOK) and is sent only to the provider you cho
 | GitHub token (OAuth) | httpOnly cookie | This browser |
 | Provider key | Kept for the current tab (`sessionStorage`) by default; sent only to the provider | This tab, or this browser if you tick "Remember on this device" (unencrypted) |
 | Issue text for analysis | Sent to the chosen model provider | Not stored |
+| Usage events, only when the deployment sets `NEXT_PUBLIC_POSTHOG_KEY` | Sent to PostHog through this app's origin (`/ingest`): event names, enums, counts and public repository names, never the username, issue text or keys | Not stored in the browser: no cookies, no storage, no identity across days |
 
 Use a key with a spending limit. Issue bodies are untrusted input to the model for the optional analysis (indirect prompt injection is possible); the model has no tools and its reply is shown as plain text.
 

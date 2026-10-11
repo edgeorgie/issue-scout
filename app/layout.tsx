@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Big_Shoulders, IBM_Plex_Mono, Public_Sans } from "next/font/google";
+import Analytics from "@/components/Analytics";
 import "./globals.css";
 
 const display = Big_Shoulders({ variable: "--font-display", subsets: ["latin"], weight: ["700", "800", "900"] });
@@ -14,7 +15,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${display.variable} ${body.variable} ${mono.variable} h-full antialiased`}>
-      <body className="min-h-full">{children}</body>
+      <body className="min-h-full">
+        {children}
+        <Analytics />
+      </body>
     </html>
   );
 }

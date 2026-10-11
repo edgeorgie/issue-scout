@@ -73,6 +73,16 @@ Status: Implemented, not verified end to end.
 
 - Given a provider key, then it is kept in sessionStorage for the tab by default, kept on the device only when the user ticks "Remember on this device", and removable with "Clear key"; the provider choice persists.
 
+### FR-9 Product analytics, opt-in per deployment
+
+Status: Implemented, not verified end to end.
+
+- Given a deployment without `NEXT_PUBLIC_POSTHOG_KEY`, then no analytics code is in the client bundle, no analytics request is made and nothing is logged.
+- Given a deployment with the key, then `$pageview`, `search_run`, `issue_opened` and `policy_badge_viewed` are sent to PostHog through this origin (`/ingest`), cookieless, without person profiles, autocapture or session recording, honoring Do Not Track, and every event carries `app: "issue-scout"` and `surface: "web"`.
+- Given any event, then its properties are enums, counts, booleans, durations in milliseconds or public repository names: never the username, issue titles or bodies, provider keys, GitHub tokens or other free text.
+
+Non-goals: identifying visitors across days, session replay, experiments, server-side events (the scout route sees nothing the browser does not, apart from the username). Decision: [ADR 0002](../adr/0002-cookieless-product-analytics.md).
+
 ## Open risks
 
 - In-memory rate limiting and caching do not hold across instances; the global limit is per instance.

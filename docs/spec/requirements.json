@@ -128,5 +128,27 @@
       "tests/keystore.test.ts"
     ],
     "evidence": "Key store tests; typecheck and build (SEC-002). Not exercised in a browser while Backend changes to the app are in flight."
+  },
+  {
+    "id": "FR-9",
+    "title": "Product analytics, opt-in per deployment",
+    "status": "Implemented, not verified end to end",
+    "acceptance": [
+      "Given a deployment without NEXT_PUBLIC_POSTHOG_KEY, then no analytics code is in the client bundle, no analytics request is made and nothing is logged.",
+      "Given a deployment with the key, then $pageview, search_run, issue_opened and policy_badge_viewed are sent to PostHog through this origin (/ingest), cookieless, without person profiles, autocapture or session recording, honoring Do Not Track, and every event carries app: \"issue-scout\" and surface: \"web\".",
+      "Given any event, then its properties are enums, counts, booleans, durations in milliseconds or public repository names: never the username, issue titles or bodies, provider keys, GitHub tokens or other free text."
+    ],
+    "implementation": [
+      "lib/analytics.ts",
+      "components/Analytics.tsx",
+      "instrumentation-client.ts",
+      "app/layout.tsx",
+      "app/page.tsx",
+      "next.config.ts"
+    ],
+    "tests": [
+      "tests/analytics.test.ts"
+    ],
+    "evidence": "Facade tests: disabled without a key, track is a no-op, outcomes are enums. Production build without a key: grep -r posthog .next/static finds nothing. Not exercised against a PostHog project: no key was available."
   }
 ]

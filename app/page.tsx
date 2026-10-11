@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import AnalyzeButton from "@/components/AnalyzeButton";
 import LlmSettings, { loadConfig, type LlmConfig } from "@/components/LlmSettings";
+import { searchOutcome, track, type SearchOutcome } from "@/lib/analytics";
 
 type Result = {
   issue: { number: number; title: string; url: string; labels: string[]; comments: number };
@@ -28,6 +29,15 @@ const FILTERS: { key: "all" | Policy; label: string }[] = [
 
 function band(score: number) {
   return score >= 70 ? { color: "var(--go)", text: "text-go", word: "Strong" } : score >= 45 ? { color: "var(--warn)", text: "text-[#b57800]", word: "Decent" } : { color: "var(--stop)", text: "text-stop", word: "Risky" };
+}
+
+/** The username is the search input and never leaves this app; only the shape of the answer is recorded. */
+function trackSearch(outcome: SearchOutcome, data: { languages: string[]; results: Result[] } | null, startedAt: number) {
+  track("search_run", {
+    outcome,
+    duration_ms: Math.round(performance.now() - startedAt),
+    ...(data && { language: data.languages[0] ?? "none", language_count: data.languages.length, result_count: data.results.length }),
+  });
 }
 
 function Dial({ score }: { score: number }) {
@@ -60,6 +70,8 @@ export default function Home() {
   const [asked, setAsked] = useState("");
   const [filter, setFilter] = useState<"all" | Policy>("all");
   const [sort, setSort] = useState<"score" | "stars">("score");
+  // One `policy_badge_viewed` per stance per search, so hovering across rows is not counted twice.
+  const seenPolicies = useRef(new Set<string>());
 
   useEffect(() => {
     Promise.resolve().then(() => setLlm(loadConfig()));
@@ -77,13 +89,17 @@ export default function Home() {
     setData(null);
     setFilter("all");
     setAsked(name);
+    seenPolicies.current.clear();
+    const startedAt = performance.now();
     try {
       const res = await fetch(`/api/scout?user=${encodeURIComponent(name)}`);
       const body = await res.json();
       if (!res.ok) setError(body.error ?? "Request failed");
       else setData(body);
+      trackSearch(searchOutcome(res.status), res.ok ? body : null, startedAt);
     } catch {
       setError("Network error");
+      trackSearch("network_error", null, startedAt);
     } finally {
       setLoading(false);
     }
@@ -198,14 +214,30 @@ export default function Home() {
                     <div className="flex gap-5">
                       <Dial score={r.repo.score.total} />
                       <div className="min-w-0 flex-1">
-                        <a href={r.issue.url} target="_blank" rel="noreferrer" className="block text-xl font-bold leading-snug decoration-go decoration-2 underline-offset-4 hover:underline">
+                        <a
+                          href={r.issue.url}
+                          target="_blank"
+                          rel="noreferrer"
+                          onClick={() => track("issue_opened", { repo: r.repo.name, policy: r.repo.aiPolicy, score_band: band(r.repo.score.total).word.toLowerCase(), policy_filter: filter, sort, position: i + 1 })}
+                          className="block text-xl font-bold leading-snug decoration-go decoration-2 underline-offset-4 hover:underline"
+                        >
                           {r.issue.title}
                         </a>
                         <p className="mt-1 font-mono text-[13px] text-ink-soft">
                           {r.repo.name} &middot; &#9733; {r.repo.stars.toLocaleString()} &middot; {r.issue.comments} comments
                         </p>
                         <div className="mt-3 flex flex-wrap items-center gap-2">
-                          <span title={p.hint} className={`rounded-full px-3 py-1 text-xs font-bold ${p.chip}`}>{p.label}</span>
+                          <span
+                            title={p.hint}
+                            onMouseEnter={() => {
+                              if (seenPolicies.current.has(r.repo.aiPolicy)) return;
+                              seenPolicies.current.add(r.repo.aiPolicy);
+                              track("policy_badge_viewed", { stance: r.repo.aiPolicy });
+                            }}
+                            className={`rounded-full px-3 py-1 text-xs font-bold ${p.chip}`}
+                          >
+                            {p.label}
+                          </span>
                           <span className={`rounded-full px-3 py-1 text-xs font-bold ${r.repo.hasContributing ? "bg-go-soft text-go" : "bg-ink/5 text-ink-soft"}`}>
                             {r.repo.hasContributing ? "Has CONTRIBUTING" : "No CONTRIBUTING"}
                           </span>

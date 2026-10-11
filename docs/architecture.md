@@ -38,6 +38,9 @@ sequenceDiagram
 | `lib/ratelimit.ts` | Per-client limiter |
 | `lib/auth.ts` | OAuth helpers |
 | `app/api/` | Route handlers |
+| `lib/analytics.ts` | Analytics facade: no-op without a key, cookieless PostHog through `/ingest` with it |
+| `components/Analytics.tsx` | Manual `$pageview`; renders nothing without a key |
+| `instrumentation-client.ts` | Loads the analytics SDK on idle, only when a key is set |
 
 ## Principles
 
@@ -48,3 +51,4 @@ sequenceDiagram
 ## Decisions
 
 - [Heuristic score, not a model](adr/0001-heuristic-score-not-a-model.md)
+- [Cookieless product analytics, off until a key is set](adr/0002-cookieless-product-analytics.md)
