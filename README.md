@@ -86,7 +86,7 @@ All variables are optional. Copy `.env.example` to `.env.local` to set them.
 | `GITHUB_TOKEN` | Raises the GitHub API limit when not using OAuth. Use a fine-grained token without access to private repositories. |
 | `GITHUB_CLIENT_ID` | GitHub OAuth App client id. |
 | `GITHUB_CLIENT_SECRET` | GitHub OAuth App secret. Callback URL: `<origin>/api/auth/callback`. |
-| `NEXT_PUBLIC_POSTHOG_KEY` | PostHog project token for cookieless usage analytics. Unset by default: nothing is bundled or sent. What is and is not collected: [ADR 0002](docs/adr/0002-cookieless-product-analytics.md). |
+| `NEXT_PUBLIC_POSTHOG_KEY` | PostHog project token for cookieless usage analytics. Unset by default: nothing is bundled or sent and the `/ingest` proxy route is not registered. What is and is not collected: [ADR 0002](docs/adr/0002-cookieless-product-analytics.md). |
 
 ## Keys and privacy
 

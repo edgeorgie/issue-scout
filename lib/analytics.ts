@@ -11,7 +11,8 @@
  *   daily anonymous id server-side; `identify()` is never called.
  * - Transport goes through this origin (`/ingest`, see next.config.ts), so
  *   the browser never talks to a third-party host and tracking blockers that
- *   filter by domain do not drop it.
+ *   filter by domain do not drop it. The proxy route is registered only when
+ *   a key is set; without one `/ingest` does not exist.
  * - Every event carries `app` and `surface` so one PostHog project can hold
  *   every app. Never send user content: not the username, not issue text,
  *   not the provider key. Only enums, counts, booleans, durations and public
@@ -26,7 +27,7 @@ type Props = Record<string, string | number | boolean | null | undefined>;
 export const analyticsEnabled = Boolean(process.env.NEXT_PUBLIC_POSTHOG_KEY);
 /** The `app` super property; the same PostHog project holds every app. */
 export const APP = "issue-scout";
-/** Same-origin path proxied to PostHog by next.config.ts rewrites. */
+/** Same-origin path proxied to PostHog by next.config.ts rewrites, which exist only with a key. */
 export const ANALYTICS_HOST = "/ingest";
 
 let client: PostHog | null = null;

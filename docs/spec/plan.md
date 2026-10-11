@@ -18,6 +18,7 @@ The route detects the user's languages, searches issues, enriches each repositor
 | `lib/analytics.ts` | Analytics facade: no-op without `NEXT_PUBLIC_POSTHOG_KEY`, cookieless PostHog through `/ingest` with it |
 | `components/Analytics.tsx` | Manual `$pageview` on load and route change; renders nothing without a key |
 | `instrumentation-client.ts` | Loads the analytics SDK on idle, only when a key is set |
+| `next.config.ts` | `/ingest` rewrites to PostHog, registered only when `NEXT_PUBLIC_POSTHOG_KEY` is set; otherwise the route does not exist |
 
 ## Decisions
 

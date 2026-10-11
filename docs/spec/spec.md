@@ -78,6 +78,7 @@ Status: Implemented, not verified end to end.
 Status: Implemented, not verified end to end.
 
 - Given a deployment without `NEXT_PUBLIC_POSTHOG_KEY`, then no analytics code is in the client bundle, no analytics request is made and nothing is logged.
+- Given a deployment without the key (unset or empty), then the `/ingest` proxy is not registered: `rewrites()` returns no rules and a request to `/ingest/*` is a 404, not a forward to PostHog.
 - Given a deployment with the key, then `$pageview`, `search_run`, `issue_opened` and `policy_badge_viewed` are sent to PostHog through this origin (`/ingest`), cookieless, without person profiles, autocapture or session recording, honoring Do Not Track, and every event carries `app: "issue-scout"` and `surface: "web"`.
 - Given any event, then its properties are enums, counts, booleans, durations in milliseconds or public repository names: never the username, issue titles or bodies, provider keys, GitHub tokens or other free text.
 
