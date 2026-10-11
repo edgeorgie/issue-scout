@@ -135,6 +135,7 @@
     "status": "Implemented, not verified end to end",
     "acceptance": [
       "Given a deployment without NEXT_PUBLIC_POSTHOG_KEY, then no analytics code is in the client bundle, no analytics request is made and nothing is logged.",
+      "Given a deployment without the key (unset or empty), then the /ingest proxy is not registered: rewrites() returns no rules and a request to /ingest/* is a 404, not a forward to PostHog.",
       "Given a deployment with the key, then $pageview, search_run, issue_opened and policy_badge_viewed are sent to PostHog through this origin (/ingest), cookieless, without person profiles, autocapture or session recording, honoring Do Not Track, and every event carries app: \"issue-scout\" and surface: \"web\".",
       "Given any event, then its properties are enums, counts, booleans, durations in milliseconds or public repository names: never the username, issue titles or bodies, provider keys, GitHub tokens or other free text."
     ],
@@ -147,8 +148,9 @@
       "next.config.ts"
     ],
     "tests": [
-      "tests/analytics.test.ts"
+      "tests/analytics.test.ts",
+      "tests/ingest-proxy.test.ts"
     ],
-    "evidence": "Facade tests: disabled without a key, track is a no-op, outcomes are enums. Production build without a key: grep -r posthog .next/static finds nothing. Not exercised against a PostHog project: no key was available."
+    "evidence": "Facade tests: disabled without a key, track is a no-op, outcomes are enums. Production build without a key: grep -r posthog .next/static finds nothing. Proxy test calls the real rewrites() with an unset, an empty and a set key. A production build without a key serves 404 for POST /ingest/e/ and GET /ingest/static/array.js and its routes manifest has no rewrites; a build with a throwaway key lists the three. Not exercised against a PostHog project: no key was available."
   }
 ]

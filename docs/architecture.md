@@ -41,6 +41,7 @@ sequenceDiagram
 | `lib/analytics.ts` | Analytics facade: no-op without a key, cookieless PostHog through `/ingest` with it |
 | `components/Analytics.tsx` | Manual `$pageview`; renders nothing without a key |
 | `instrumentation-client.ts` | Loads the analytics SDK on idle, only when a key is set |
+| `next.config.ts` | `/ingest` rewrites to PostHog, registered only when `NEXT_PUBLIC_POSTHOG_KEY` is set; otherwise the route does not exist |
 
 ## Principles
 
