@@ -15,10 +15,18 @@ The route detects the user's languages, searches issues, enriches each repositor
 | `lib/ratelimit.ts` | Per-client limiter |
 | `lib/auth.ts` | OAuth helpers |
 | `app/api/` | Route handlers |
+| `lib/analytics.ts` | Analytics facade: no-op without `NEXT_PUBLIC_POSTHOG_KEY`, cookieless PostHog through `/ingest` with it |
+| `components/Analytics.tsx` | Manual `$pageview` on load and route change; renders nothing without a key |
+| `instrumentation-client.ts` | Loads the analytics SDK on idle, only when a key is set |
 
 ## Decisions
 
 - [ADR 0001: Heuristic score, not a model](../adr/0001-heuristic-score-not-a-model.md)
+- [ADR 0002: Cookieless product analytics, off until a key is set](../adr/0002-cookieless-product-analytics.md)
+
+## Dependencies
+
+- `posthog-js` (FR-9, ADR 0002): imported dynamically and only when `NEXT_PUBLIC_POSTHOG_KEY` is set, so a deployment without analytics ships none of it.
 
 ## Quality gates
 
