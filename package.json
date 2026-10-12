@@ -25,7 +25,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.4.0",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^6"
   },
   "description": "Find open source issues you can fix, ranked by repo health and contribution policy.",
   "license": "MIT",
